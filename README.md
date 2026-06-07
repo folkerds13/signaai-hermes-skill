@@ -7,7 +7,7 @@ AI agent blockchain payments on Signum. Let your Hermes agent pay other agents, 
 From the Hermes Skills Hub or chat:
 
 ```
-install signaai from github:mikefolkerds/signaai-hermes-skill
+install signaai from github:folkerds13/signaai-hermes-skill
 ```
 
 Or via the Hermes dashboard → Skills → Search "signaai".
