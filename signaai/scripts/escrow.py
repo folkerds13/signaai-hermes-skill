@@ -234,9 +234,16 @@ def _log(msg):
 
 def _resolve_passphrase(passphrase):
     """
-    Resolve '@worker' sentinel to the actual passphrase from signaai-worker.json.
-    Pass '@worker' in place of a literal passphrase — the script reads it from disk.
+    Resolve a passphrase spec to the literal passphrase.
+
+    Supported specs (via signaai.cli_secrets): '-' (prompt), 'env:VAR',
+    '@worker', '@file:PATH'. Legacy '@<key>' reads that key from
+    signaai-worker.json. Anything else is returned as-is.
     """
+    spec = str(passphrase).strip() if passphrase else ""
+    if spec == "-" or spec.startswith("env:") or spec == "@worker" or spec.startswith("@file:"):
+        from signaai.cli_secrets import resolve_passphrase as _sdk_resolve
+        return _sdk_resolve(spec)
     if passphrase and str(passphrase).strip().startswith("@"):
         key = passphrase.strip()[1:]  # strip the '@'
         worker_files = [
@@ -1025,6 +1032,7 @@ def main():
 
     if args.cmd == "create":
         import subprocess, tempfile
+        passphrase_spec = args.payer_passphrase  # unresolved spec — safe to persist
         args.payer_passphrase = _resolve_passphrase(args.payer_passphrase)
         print(f"Creating escrow on {args.network}...", flush=True)
 
@@ -1065,7 +1073,9 @@ def main():
         # ── Write setup to temp file for background process ───────────────────
         setup = {
             "network": args.network,
-            "payer_passphrase": args.payer_passphrase,
+            # Store the spec, not the literal — create-bg resolves it at use,
+            # so @worker/env: passphrases never land in the temp file.
+            "payer_passphrase": passphrase_spec,
             "worker_address": args.worker_address,
             "amount": args.amount,
             "task_description": args.task_description,
@@ -1095,9 +1105,9 @@ def main():
             print(f"Error reading setup file: {e}", flush=True)
             sys.exit(1)
         result, err = create_escrow(
-            setup['payer_passphrase'], setup['worker_address'], setup['amount'],
-            setup['task_description'], setup['deadline_hours'], setup['network'],
-            _skip_dedup=True,
+            _resolve_passphrase(setup['payer_passphrase']), setup['worker_address'],
+            setup['amount'], setup['task_description'], setup['deadline_hours'],
+            setup['network'], _skip_dedup=True,
         )
         if err:
             print(f"Error: {err}", flush=True)

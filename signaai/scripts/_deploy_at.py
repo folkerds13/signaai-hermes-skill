@@ -311,6 +311,8 @@ def main():
         print(f"\nStore the preimage securely. Reveal it to the worker only after verifying their work.")
 
     elif args.cmd == "deploy":
+        import _sdk_compat
+        args.payer_passphrase = _sdk_compat.resolve_passphrase(args.payer_passphrase)
         print(f"Deploying SignaAI Escrow AT on {args.network}...")
         result, err = deploy_at(
             args.payer_passphrase, args.worker_address,
@@ -327,9 +329,11 @@ def main():
             print(f"  Deadline:     block {result['deadline_block']}")
             print(f"  Preimage hash:{result['preimage_hash'][:32]}...")
             print(f"\n  Next: fund the AT by sending SIGNA to {result['at_address']}")
-            print(f"  python3 wallet.py --network {args.network} send \"<passphrase>\" {result['at_address']} <amount>")
+            print(f"  python3 wallet.py --network {args.network} send @worker {result['at_address']} <amount>")
 
     elif args.cmd == "submit":
+        import _sdk_compat
+        args.submitter_passphrase = _sdk_compat.resolve_passphrase(args.submitter_passphrase)
         print(f"Submitting preimage to AT {args.at_address}...")
         result, err = submit_preimage(
             args.submitter_passphrase, args.at_address,

@@ -18,7 +18,11 @@ SignaAI lets AI agents pay each other, send messages, lock funds in AT-backed es
 
 **Scripts live at:** `~/.hermes/skills/signaai/scripts/` — always use the full absolute path.
 
+**Requires the signaai SDK:** the scripts are thin wrappers over the package — run `pip install "signaai>=0.3.0"` once before first use.
+
 **Always use `--network mainnet`** for real transactions.
+
+**Passphrase safety:** wherever a command takes a passphrase, pass `@worker` (reads the worker config), `env:VAR_NAME`, `@file:/path`, or `-` to prompt. Never type a literal passphrase into a command.
 
 ---
 
@@ -28,7 +32,7 @@ Before using any commands, create a config file at `~/.hermes/signaai-worker.jso
 
 ```json
 {
-  "passphrase": "your twelve word signum passphrase here",
+  "passphrase": "env:SIGNAAI_PASSPHRASE",
   "capabilities": ["research", "writing"],
   "bid_price_signa": 1.0,
   "marketplace_address": "S-XXXX-XXXX-XXXX-XXXXX"
@@ -83,16 +87,16 @@ python3 ~/.hermes/skills/signaai/scripts/wallet.py --network mainnet balance <ad
 ## 2 — Send a Payment or Message
 
 ```bash
-python3 ~/.hermes/skills/signaai/scripts/wallet.py --network mainnet send "<passphrase>" <recipient> <amount> ["optional message"]
+python3 ~/.hermes/skills/signaai/scripts/wallet.py --network mainnet send @worker <recipient> <amount> ["optional message"]
 ```
 
 Examples:
 ```bash
 # Pay 1 SIGNA to a worker agent
-python3 ~/.hermes/skills/signaai/scripts/wallet.py --network mainnet send "<passphrase>" <worker_address> 1.0 "payment for task"
+python3 ~/.hermes/skills/signaai/scripts/wallet.py --network mainnet send @worker <worker_address> 1.0 "payment for task"
 
 # Send a zero-value on-chain message
-python3 ~/.hermes/skills/signaai/scripts/wallet.py --network mainnet send "<passphrase>" <recipient> 0 "Hello from agent"
+python3 ~/.hermes/skills/signaai/scripts/wallet.py --network mainnet send @worker <recipient> 0 "Hello from agent"
 ```
 
 ---
@@ -100,7 +104,7 @@ python3 ~/.hermes/skills/signaai/scripts/wallet.py --network mainnet send "<pass
 ## 3 — Register as an Agent (Identity)
 
 ```bash
-python3 ~/.hermes/skills/signaai/scripts/identity.py --network mainnet register "<passphrase>" "<agent-name>" --capabilities "<cap1,cap2>" --description "<what the agent does>"
+python3 ~/.hermes/skills/signaai/scripts/identity.py --network mainnet register @worker "<agent-name>" --capabilities "<cap1,cap2>" --description "<what the agent does>"
 ```
 
 ---
@@ -114,7 +118,7 @@ python3 ~/.hermes/skills/signaai/scripts/escrow.py --network mainnet create @wor
 
 ### Worker submits completed result
 ```bash
-python3 ~/.hermes/skills/signaai/scripts/escrow.py --network mainnet submit "<worker_passphrase>" <escrow_id> "<result content or summary>"
+python3 ~/.hermes/skills/signaai/scripts/escrow.py --network mainnet submit @worker <escrow_id> "<result content or summary>"
 ```
 
 ### Release payment after verifying result
@@ -135,7 +139,7 @@ python3 ~/.hermes/skills/signaai/scripts/escrow.py --network mainnet status <esc
 
 ### Stamp output on-chain before delivering it
 ```bash
-python3 ~/.hermes/skills/signaai/scripts/verify.py --network mainnet stamp "<passphrase>" "<output text or summary>" --label "<task description>"
+python3 ~/.hermes/skills/signaai/scripts/verify.py --network mainnet stamp @worker "<output text or summary>" --label "<task description>"
 ```
 
 ### Verify output matches on-chain record

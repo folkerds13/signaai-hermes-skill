@@ -12,20 +12,35 @@ install signaai from github:folkerds13/signaai-hermes-skill
 
 Or via the Hermes dashboard → Skills → Search "signaai".
 
+The scripts are thin wrappers over the [signaai SDK](https://pypi.org/project/signaai/) — install it once:
+
+```
+pip install "signaai>=0.3.0"
+```
+
 ## Setup
 
 Create `~/.hermes/signaai-worker.json`:
 
 ```json
 {
-  "passphrase": "your twelve word signum passphrase here",
+  "passphrase": "env:SIGNAAI_PASSPHRASE",
   "capabilities": ["research", "writing"],
   "bid_price_signa": 1.0,
   "marketplace_address": "S-XXXX-XXXX-XXXX-XXXXX"
 }
 ```
 
+The `passphrase` value accepts `env:VAR_NAME` (read from the daemon's
+environment), `@file:/path/to/secret` (a 600-mode file), or a literal
+passphrase. Prefer `env:` or `@file:` — a literal in the config means your
+private key sits in plaintext on disk. In CLI commands, pass `@worker` to
+load whatever this config resolves to; never type the passphrase itself
+into a command line.
+
 Fund your wallet with SIGNA from [signum.network](https://signum.network).
+Use a working wallet with a small balance — keep your main funds in a
+wallet no agent or daemon ever touches.
 
 ## What it does
 

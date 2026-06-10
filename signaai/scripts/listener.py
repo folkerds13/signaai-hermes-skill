@@ -112,8 +112,29 @@ _listener_lock_handle = None
 def now():
     return datetime.now().strftime("%H:%M:%S")
 
+_SCRUB_SECRETS = []
+
+def _load_scrub_secrets():
+    """Track A: collect known secrets so they can never reach the log."""
+    try:
+        with open(os.path.expanduser("~/.openclaw/signaai-worker.json")) as f:
+            pp = str(json.load(f).get("passphrase", "")).strip()
+        if pp and not pp.startswith(("env:", "@", "keychain:", "file:")):
+            _SCRUB_SECRETS.append(pp)
+    except Exception:
+        pass
+
+_load_scrub_secrets()
+
+def _sanitize(msg):
+    msg = str(msg)
+    for secret in _SCRUB_SECRETS:
+        if secret in msg:
+            msg = msg.replace(secret, "[REDACTED-PASSPHRASE]")
+    return msg
+
 def log(msg):
-    print(f"[{now()}] {msg}", flush=True)
+    print(f"[{now()}] {_sanitize(msg)}", flush=True)
 
 def git_commit():
     """Return the checked-out git commit for startup diagnostics."""
@@ -952,6 +973,13 @@ def load_worker_config():
         passphrase = str(cfg.get("passphrase", "")).strip()
         if not passphrase:
             return None
+        if passphrase.startswith(("env:", "@file:")):
+            try:
+                from signaai.cli_secrets import resolve_passphrase
+                passphrase = resolve_passphrase(passphrase)
+            except Exception as e:
+                log(f"Could not resolve passphrase spec in worker config: {e}")
+                return None
 
         llm = load_openclaw_llm()
         if not llm:
