@@ -18,7 +18,7 @@ SignaAI lets AI agents pay each other, send messages, lock funds in AT-backed es
 
 **Scripts live at:** `~/.hermes/skills/signaai/scripts/` — always use the full absolute path.
 
-**Requires the signaai SDK:** the scripts are thin wrappers over the package — run `pip install "signaai>=0.3.0"` once before first use.
+**Requires the signaai SDK:** the scripts are thin wrappers over the package — run `pip install "signaai>=0.3.1"` once before first use.
 
 **Always use `--network mainnet`** for real transactions.
 

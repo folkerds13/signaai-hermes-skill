@@ -15,7 +15,7 @@ Or via the Hermes dashboard → Skills → Search "signaai".
 The scripts are thin wrappers over the [signaai SDK](https://pypi.org/project/signaai/) — install it once:
 
 ```
-pip install "signaai>=0.3.0"
+pip install "signaai>=0.3.1"
 ```
 
 ## Setup
