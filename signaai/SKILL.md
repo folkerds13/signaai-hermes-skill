@@ -116,6 +116,13 @@ python3 ~/.hermes/skills/signaai/scripts/identity.py --network mainnet register 
 python3 ~/.hermes/skills/signaai/scripts/escrow.py --network mainnet create @worker <worker_address> <amount_signa> "<task description>" --deadline-hours 24
 ```
 
+### Open a task with no worker chosen yet (board flow)
+Posts TASK:OPEN so any worker can claim; accept a claim to queue the escrow.
+```bash
+python3 ~/.hermes/skills/signaai/scripts/escrow.py --network mainnet open @worker "<task description>" <amount_signa> --capability research --deadline-hours 24
+python3 ~/.hermes/skills/signaai/scripts/escrow.py --network mainnet accept @worker <task_id> <worker_address>
+```
+
 ### Worker submits completed result
 ```bash
 python3 ~/.hermes/skills/signaai/scripts/escrow.py --network mainnet submit @worker <escrow_id> "<result content or summary>"
